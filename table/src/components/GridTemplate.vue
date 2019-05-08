@@ -2,19 +2,29 @@
   <table>
     <thead>
       <tr>
+        <th>
+          <input type="checkbox" />
+        </th>
         <th v-for="key in columns"
           @click="sortBy(key)"
-          :class="{ active: sortKey == key }">
+          :class="{ active: sortKey === key }">
           {{ key | capitalize }}
           <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
           </span>
         </th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="entry in filteredHeroes">
+      <tr v-for="entry in filteredIngredients" :key="entry.id">
+        <td>
+          <input type="checkbox" />
+        </td>
         <td v-for="key in columns">
           {{entry[key]}}
+        </td>
+        <td>
+          <div class="red">Remove</div>
         </td>
       </tr>
     </tbody>
@@ -25,17 +35,13 @@
   export default {
     name: 'GridTemplate',
     props: {
-      heroes: {
+      ingredients: {
         type: Array,
         default: () => []
       },
       columns:  {
         type: Array,
         default: () => []
-      },
-      filterKey: {
-        type: String,
-        default: ''
       }
     },
 
@@ -52,29 +58,20 @@
     },
 
     computed: {
-      filteredHeroes: function () {
+      filteredIngredients() {
         let sortKey = this.sortKey;
-        let filterKey = this.filterKey && this.filterKey.toLowerCase();
         let order = this.sortOrders[sortKey] || 1;
-        let heroes = this.heroes;
-
-        if (filterKey) {
-          heroes = heroes.filter(row => {
-            return Object.keys(row).some(key => {
-              return String(row[key]).toLowerCase().indexOf(filterKey) > -1
-            })
-          })
-        }
+        let ingredients = this.ingredients;
 
         if (sortKey) {
-          heroes = heroes.slice().sort((a, b) => {
+          ingredients = ingredients.slice().sort((a, b) => {
             a = a[sortKey];
             b = b[sortKey];
             return (a === b ? 0 : a > b ? 1 : -1) * order;
           })
         }
 
-        return heroes;
+        return ingredients;
       }
     },
 
@@ -85,10 +82,14 @@
     },
 
     methods: {
-      sortBy: function(key) {
+      sortBy(key) {
         this.sortKey = key;
         this.sortOrders[key] = this.sortOrders[key] * -1;
       }
     }
   }
 </script>
+
+<style scoped>
+
+</style>

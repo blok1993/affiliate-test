@@ -1,0 +1,75 @@
+// UI
+button, input, select {
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 20px;
+}
+
+button {
+  border-radius: 4px;
+  cursor: pointer;
+
+  &.red {
+    color: #fff;
+    background-color: red;
+  }
+
+  &.pagination {
+    border-radius: 0;
+  }
+}
+
+.header {
+  padding: 20px 0;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+
+  .group-by {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+
+    .pills {
+      display: flex;
+      align-items: center;
+
+      .pill {
+        padding: 5px 10px;
+        margin: 0 5px;
+        cursor: pointer;
+
+        &.active {
+          background-color: #528CE0;
+          color: #fff;
+          border-radius: 5px;
+        }
+      }
+    }
+  }
+
+  .page-control {
+    display: flex;
+  }
+}
+
+table {
+  width: 100%;
+
+  thead {
+    tr {
+      height: 40px;
+      text-align: left;
+    }
+  }
+  tbody {
+    tr {
+      &:nth-child(even) {
+        background-color: #ddd;
+      }
+    }
+  }
+}
