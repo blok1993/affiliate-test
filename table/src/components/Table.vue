@@ -9,17 +9,17 @@
       </div>
 
       <div v-if="loadError" class="error">
-        Error occured while loading data. Try again later.
+        Error occurred while loading data. Try again later.
       </div>
 
       <div v-show="!loading && !loadError" id="main">
         <div class="controls">
           <div class="group-by">
-            <b>Group By:</b>
+            <span class="bold">Group By:</span>
             <div class="pills">
               <div class="pill"
                    v-for="col in gridColumns"
-                   v-bind:class="{'active': selectedCol === col}"
+                   v-bind:class="{'active': selectedCol === col, 'disabled': includedColumns.indexOf(col) === -1}"
                    @click="makeFirst(col)">{{col}}
               </div>
             </div>
@@ -42,7 +42,7 @@
                     :disabled="page === 0"
                     @click="changePage(-1)">←
             </button>
-            {{page * pageSize + 1}} - {{(page + 1) * pageSize}} из {{gridData.length}}
+            <span class="text">{{page * pageSize + 1}} - {{(page + 1) * pageSize}} of {{gridData.length}}</span>
             <button class="control control-right"
                     :disabled="page === Math.ceil(gridData.length / pageSize) - 1"
                     @click="changePage(1)">→
@@ -130,10 +130,12 @@ export default {
 
   methods: {
       makeFirst(col) {
-          this.selectedCol = col;
-          this.copyOfGridColumns = [...this.gridColumns];
-          this.copyOfGridColumns.splice(this.copyOfGridColumns.indexOf(col), 1);
-          this.copyOfGridColumns.unshift(col);
+          if (this.includedColumns.indexOf(col) > -1) {
+            this.selectedCol = col;
+            this.copyOfGridColumns = [...this.gridColumns].filter(el => this.includedColumns.indexOf(el) > -1);
+            this.copyOfGridColumns.splice(this.copyOfGridColumns.indexOf(col), 1);
+            this.copyOfGridColumns.unshift(col);
+          }
       },
 
       selectionChanged() {

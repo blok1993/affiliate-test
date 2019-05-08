@@ -18,13 +18,14 @@
     <tbody>
       <tr v-for="entry in filteredIngredients" :key="entry.id">
         <td>
+          <div class="vertical-line"></div>
           <input type="checkbox" />
         </td>
         <td v-for="key in columns">
           {{entry[key]}}
         </td>
         <td>
-          <div class="red">Remove</div>
+          <div class="delete red" @click="deleteItem(entry)">Delete</div>
         </td>
       </tr>
     </tbody>
@@ -32,6 +33,8 @@
 </template>
 
 <script>
+  import { emulateDeleteRequest } from "../api";
+
   export default {
     name: 'GridTemplate',
     props: {
@@ -85,6 +88,16 @@
       sortBy(key) {
         this.sortKey = key;
         this.sortOrders[key] = this.sortOrders[key] * -1;
+      },
+
+      deleteItem(entry) {
+        emulateDeleteRequest()
+          .then(response => {
+              console.log('Item deleted successfully.');
+          })
+          .catch(error => {
+              console.error('Error occurred while deleting item.');
+          });
       }
     }
   }

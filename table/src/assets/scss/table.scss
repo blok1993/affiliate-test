@@ -1,6 +1,7 @@
 // UI
 button, input, select {
-  height: 40px;
+  min-height: 30px !important;
+  height: 30px;
   box-sizing: border-box;
   padding: 0 20px;
 }
@@ -8,10 +9,12 @@ button, input, select {
 button {
   border-radius: 4px;
   cursor: pointer;
+  border: none;
+  outline:none;
 
   &.red {
     color: #fff;
-    background-color: red;
+    background-color: #e55b5b;
   }
 
   &.pagination {
@@ -19,14 +22,48 @@ button {
   }
 }
 
+.blue {
+  color: #4c73fc;
+}
+
+.light-blue {
+  color: #7392fc;
+}
+
+.active-row {
+  background-color: #edf1fe;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+body {
+  padding: 20px 40px;
+  font-size: 13px;
+  background-color: #fbfbfb;
+}
+
 .header {
   padding: 20px 0;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #eee;
   margin-bottom: 20px;
+  font-weight: bold;
+  font-size: 24px;
 }
 
 .controls {
   display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+
+  > div {
+    flex-shrink: 0;
+
+    &:not(:first-child):not(:last-child) {
+      margin: 5px 8px;
+    }
+  }
 
   .group-by {
     display: flex;
@@ -36,16 +73,21 @@ button {
     .pills {
       display: flex;
       align-items: center;
+      margin-left: 5px;
 
       .pill {
         padding: 5px 10px;
-        margin: 0 5px;
         cursor: pointer;
 
         &.active {
-          background-color: #528CE0;
+          background-color: #4c73fc;
           color: #fff;
           border-radius: 5px;
+        }
+
+        &.disabled {
+          cursor: default;
+          opacity: 0.3;
         }
       }
     }
@@ -53,22 +95,113 @@ button {
 
   .page-control {
     display: flex;
+    align-items: center;
+
+    .text {
+      margin: 0 5px;
+    }
+
+    button {
+      &.control {
+        min-width: 30px;
+        font-size: 24px;
+        border-radius: 0;
+        background: transparent;
+        border: 1px solid #ccc;
+        padding: 0;
+      }
+    }
+  }
+
+  button {
+    &.btn-select {
+      border-radius: 0;
+      background: transparent;
+    }
+  }
+
+  .columns-inclusion {
+    button {
+      color: #4c73fc;
+      border-color: #4c73fc;
+    }
   }
 }
 
 table {
   width: 100%;
 
+  th, td {
+    vertical-align: middle;
+  }
+
   thead {
     tr {
       height: 40px;
       text-align: left;
+      background-color: #fff;
+      cursor: pointer;
+
+      th {
+        border-bottom: 1px solid #eee;
+        font-weight: bold;
+
+        &:first-child {
+          padding-left: 25px;
+        }
+      }
     }
   }
+
   tbody {
     tr {
       &:nth-child(even) {
-        background-color: #ddd;
+        background-color: #f4f5f8;
+      }
+
+      &:nth-child(odd) {
+        background-color: #fff;
+      }
+
+      td {
+        padding: 4px 0;
+        position: relative;
+
+        .delete {
+          opacity: 0;
+          pointer-events: none;
+          color: #e55b5b;
+        }
+
+        .vertical-line {
+          width: 4px;
+          height: 100%;
+          position: absolute;
+          left: 0;
+          top: 0;
+          background-color: #4c73fc;
+          opacity: 0;
+        }
+
+        &:first-child {
+          padding-left: 25px;
+        }
+      }
+
+      &:hover {
+        background-color: #edf1fe;
+        cursor: pointer;
+
+        td {
+          .delete {
+            opacity: 1;
+            pointer-events: auto;
+          }
+
+          .vertical-line {
+            opacity: 1;
+          }
+        }
       }
     }
   }
