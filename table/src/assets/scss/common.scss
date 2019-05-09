@@ -1,0 +1,109 @@
+$red: #e55b5b;
+$blue: #4c73fc;
+$light-blue: #7392fc;
+$bg: #edf1fe;
+$border-color: #ccc;
+
+button, input, select {
+  min-height: 30px !important;
+  height: 30px;
+  box-sizing: border-box;
+  padding: 0 20px;
+}
+
+button {
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  outline:none;
+
+  &.red {
+    color: #fff;
+    background-color: $red;
+  }
+
+  &.pagination {
+    border-radius: 0;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    color: #ccc;
+    background: transparent;
+    border: 1px solid $border-color;
+  }
+}
+
+.select {
+  .checkboxLayer, .selectItem {
+    min-width: 170px !important;
+  }
+
+  .selectItem {
+    background-color: transparent !important;
+
+    .right {
+      display: none;
+    }
+  }
+}
+
+.blue {
+  color: $blue;
+}
+
+.light-blue {
+  color: $light-blue;
+}
+
+.active-row {
+  background-color: #edf1fe;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.container {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  height: 12px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 14px;
+  width: 14px;
+  background-color: transparent;
+  box-shadow: inset 0 0 0 1px $border-color;
+}
+
+.container input:checked ~ .checkmark {
+  background-color: $blue;
+  box-shadow: inset 0 0 0 1px $border-color, inset 0 0 0 2px #fff;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.container input:checked ~ .checkmark:after {
+  display: block;
+}

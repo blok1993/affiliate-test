@@ -26,7 +26,11 @@
           </div>
 
           <div class="delete-control">
-            <button class="red">Delete</button>
+            <button :disabled="checkedRows.length === 0"
+                    class="red"
+                    @click="deleteSelectedItems($event, checkedRows)">Delete
+              <span v-if="checkedRows.length > 0">({{checkedRows.length}})</span>
+            </button>
           </div>
 
           <div class="items-per-page">
@@ -40,12 +44,12 @@
           <div class="page-control">
             <button class="control control-left"
                     :disabled="page === 0"
-                    @click="changePage(-1)">←
+                    @click="changePage(-1)"><
             </button>
             <span class="text">{{page * pageSize + 1}} - {{(page + 1) * pageSize}} of {{gridData.length}}</span>
             <button class="control control-right"
                     :disabled="page === Math.ceil(gridData.length / pageSize) - 1"
-                    @click="changePage(1)">→
+                    @click="changePage(1)">>
             </button>
           </div>
 
@@ -61,16 +65,25 @@
 
         <grid-template
           :ingredients="selectedGridData"
-          :columns="copyOfGridColumns">
+          :columns="copyOfGridColumns"
+          @deleteItem="deleteItem"
+          @checkedRow="rowChecked">
         </grid-template>
       </div>
+
+      <Confirm v-show="showConfirm"
+               :items="itemsForConfirmation"
+               @ConfirmationConfirm="confirmAction"
+               @ConfirmationReject="confirmReject">
+      </Confirm>
     </div>
 </template>
 
 <script>
 
 import GridTemplate from './GridTemplate.vue';
-import { emulateGetRequest } from "../api";
+import Confirm from "./Confirm.vue";
+import { emulateGetRequest, emulateDeleteRequest } from "../api";
 import multiSelect from 'vue-multi-select';
 import 'vue-multi-select/dist/lib/vue-multi-select.min.css';
 
@@ -78,14 +91,15 @@ export default {
   name: 'Table',
   components: {
     GridTemplate,
-    multiSelect
+    multiSelect,
+    Confirm
   },
 
   data() {
     return {
       loading: false,
       loadError: false,
-      selectedCol: '',
+      selectedCol: 'product',
       gridColumns: ['product', 'calories', 'fat', 'carbs', 'protein', 'iron'],
       copyOfGridColumns: ['product', 'calories', 'fat', 'carbs', 'protein', 'iron'],
       gridData: [],
@@ -93,7 +107,7 @@ export default {
       page: 0,
       pageSize: 10,
 
-      btnLabel: perPageValue => perPageValue.length > 0 ? perPageValue[0].name : 'Select ...',
+      btnLabel: perPageValue => perPageValue.length > 0 ? perPageValue[0].name : 'Select count per page',
       perPageData: [
         { name: '5 Per Page', value: 5 },
         { name: '10 Per Page', value: 10 },
@@ -106,9 +120,22 @@ export default {
       options: {
         multi: true,
         labelList: 'perPageData',
-        cssSelected: option => (option.selected ? { 'background-color': '#5764c6' } : ''),
+        cssSelected: option => (option.selected ? { 'background-color': '#4c73fc' } : ''),
+        renderTemplate: elem => {
+            let checkBox = `<label class="container">
+                <input type="checkbox" ${this.includedColumns.indexOf(elem.name) > -1 ? 'checked="checked"' : ''}>
+                <span class="checkmark"></span>
+            </label>`;
+
+            return `<div style="display: flex; pointer-events: none">${checkBox} ${elem.name}</div>`
+        }
       },
-      includedColumns: ['product', 'calories', 'fat', 'carbs', 'protein', 'iron']
+      includedColumns: ['product', 'calories', 'fat', 'carbs', 'protein', 'iron'],
+
+      checkedRows: [],
+
+      showConfirm: false,
+      itemsForConfirmation: []
     }
   },
 
@@ -120,6 +147,7 @@ export default {
         this.loading = false;
         this.gridData = response;
         this.perPageChanged();
+        this.makeFirst(this.selectedCol);
       })
       .catch(err => {
         console.log(err);
@@ -130,27 +158,68 @@ export default {
 
   methods: {
       makeFirst(col) {
-          if (this.includedColumns.indexOf(col) > -1) {
-            this.selectedCol = col;
-            this.copyOfGridColumns = [...this.gridColumns].filter(el => this.includedColumns.indexOf(el) > -1);
-            this.copyOfGridColumns.splice(this.copyOfGridColumns.indexOf(col), 1);
-            this.copyOfGridColumns.unshift(col);
-          }
+        if (this.includedColumns.indexOf(col) > -1) {
+          this.selectedCol = col;
+          this.copyOfGridColumns = [...this.gridColumns].filter(el => this.includedColumns.indexOf(el) > -1);
+          this.copyOfGridColumns.splice(this.copyOfGridColumns.indexOf(col), 1);
+          this.copyOfGridColumns.unshift(col);
+        }
       },
 
       selectionChanged() {
+        if (this.includedColumns.length > 0) {
           this.copyOfGridColumns = [...this.includedColumns].sort();
+        } else {
+          this.includedColumns = [...this.gridColumns];
+        }
       },
 
       perPageChanged() {
+        if (this.perPageValue.length > 0) {
           this.page = 0;
           this.pageSize = this.perPageValue[0].value;
           this.selectedGridData = [...this.gridData].splice(0, this.pageSize);
+        }
       },
 
       changePage(direction) {
-          this.page += direction;
-          this.selectedGridData = [...this.gridData].splice(this.page * this.pageSize, this.pageSize);
+        this.page += direction;
+        this.selectedGridData = [...this.gridData].splice(this.page * this.pageSize, this.pageSize);
+      },
+
+      rowChecked(e) {
+          this.checkedRows = Array.from(e);
+      },
+
+      deleteSelectedItems(e, entries) {
+        this.showConfirm = true;
+        this.itemsForConfirmation = [...entries];
+
+        let rect = e.target.getBoundingClientRect();
+        let popup = document.querySelector('.confirm-popup');
+        popup.style.left = `${rect.left - 200}px`;
+        popup.style.top = `${rect.top + rect.height + 10}px`;
+      },
+
+      deleteItem(arr) {
+        this.deleteSelectedItems(arr[0], arr[1]);
+      },
+
+      confirmAction(items) {
+        this.showConfirm = false;
+
+        // items are needed there to delete them
+        emulateDeleteRequest()
+          .then(response => {
+            console.log('Items deleted successfully.');
+          })
+          .catch(error => {
+            console.error('Error occurred while deleting items.');
+          });
+      },
+
+      confirmReject() {
+        this.showConfirm = false;
       }
   }
 }

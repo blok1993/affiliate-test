@@ -2,9 +2,7 @@
   <table>
     <thead>
       <tr>
-        <th>
-          <input type="checkbox" />
-        </th>
+        <th></th>
         <th v-for="key in columns"
           @click="sortBy(key)"
           :class="{ active: sortKey === key }">
@@ -19,13 +17,16 @@
       <tr v-for="entry in filteredIngredients" :key="entry.id">
         <td>
           <div class="vertical-line"></div>
-          <input type="checkbox" />
+          <label class="container">
+            <input :id="entry.id" type="checkbox" :value="entry" @change="toggleRowEntry" v-model="checkedRows">
+            <span class="checkmark"></span>
+          </label>
         </td>
         <td v-for="key in columns">
           {{entry[key]}}
         </td>
         <td>
-          <div class="delete red" @click="deleteItem(entry)">Delete</div>
+          <div class="delete red" @click="deleteItem($event, entry)">Delete</div>
         </td>
       </tr>
     </tbody>
@@ -37,6 +38,7 @@
 
   export default {
     name: 'GridTemplate',
+
     props: {
       ingredients: {
         type: Array,
@@ -48,13 +50,14 @@
       }
     },
 
-    data () {
+    data() {
       const sortOrders = {};
       this.columns.forEach(key => {
         sortOrders[key] = 1
       });
 
       return {
+        checkedRows: [],
         sortKey: '',
         sortOrders: sortOrders
       }
@@ -90,14 +93,12 @@
         this.sortOrders[key] = this.sortOrders[key] * -1;
       },
 
-      deleteItem(entry) {
-        emulateDeleteRequest()
-          .then(response => {
-              console.log('Item deleted successfully.');
-          })
-          .catch(error => {
-              console.error('Error occurred while deleting item.');
-          });
+      deleteItem(e, entry) {
+        this.$emit('deleteItem', [e, entry]);
+      },
+
+      toggleRowEntry() {
+        this.$emit('checkedRow', this.checkedRows);
       }
     }
   }
