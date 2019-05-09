@@ -6,7 +6,7 @@
         <th v-for="key in columns"
           @click="sortBy(key)"
           :class="{ active: sortKey === key }">
-          {{ key | capitalize }}
+          {{ key | capitalize }} {{measure[key]}}
           <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
           </span>
         </th>
@@ -26,7 +26,10 @@
           {{entry[key]}}
         </td>
         <td>
-          <div class="delete red" @click="deleteItem($event, entry)">Delete</div>
+          <div class="delete red" @click="deleteItem($event, entry)">
+            <div class="icon trash-icon"></div>
+            Delete
+          </div>
         </td>
       </tr>
     </tbody>
@@ -57,6 +60,14 @@
       });
 
       return {
+        measure: {
+          'product': '(100g serving)',
+          'calories': '',
+          'carbs': '(g)',
+          'fat': '(g)',
+          'protein': '(g)',
+          'iron': '(%)'
+        },
         checkedRows: [],
         sortKey: '',
         sortOrders: sortOrders

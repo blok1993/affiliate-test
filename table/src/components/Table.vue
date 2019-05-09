@@ -19,7 +19,7 @@
             <div class="pills">
               <div class="pill"
                    v-for="col in gridColumns"
-                   v-bind:class="{'active': selectedCol === col, 'disabled': includedColumns.indexOf(col) === -1}"
+                   v-bind:class="{'active': selectedCol === col, 'disabled': selectedCol !== col && includedColumns.indexOf(col) === -1}"
                    @click="makeFirst(col)">{{col}}
               </div>
             </div>
@@ -168,7 +168,15 @@ export default {
 
       selectionChanged() {
         if (this.includedColumns.length > 0) {
-          this.copyOfGridColumns = [...this.includedColumns].sort();
+          let localArr = [...this.includedColumns];
+          this.copyOfGridColumns = localArr;
+
+          if (!localArr.includes(this.selectedCol)) {
+            this.copyOfGridColumns.unshift(this.selectedCol);
+          } else {
+            this.copyOfGridColumns.splice(this.copyOfGridColumns.indexOf(this.selectedCol), 1);
+            this.copyOfGridColumns.unshift(this.selectedCol);
+          }
         } else {
           this.includedColumns = [...this.gridColumns];
         }
@@ -197,8 +205,8 @@ export default {
 
         let rect = e.target.getBoundingClientRect();
         let popup = document.querySelector('.confirm-popup');
-        popup.style.left = `${rect.left - 200}px`;
-        popup.style.top = `${rect.top + rect.height + 10}px`;
+        popup.style.left = `${rect.left - 200 > 0 ? rect.left - 200 : 0}px`;
+        popup.style.top = `${rect.top + rect.height + window.pageYOffset + 10}px`;
       },
 
       deleteItem(arr) {
